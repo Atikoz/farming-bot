@@ -1,0 +1,39 @@
+## Methods
+
+{{#functions}}
+    ### {{name}}
+
+    {{#if description}}{{description}}{{/if}}
+
+    {{#if since}}
+        #### Since
+        - {{since}}
+    {{/if}}
+
+    {{#if params}}
+        #### Params
+        {{#each params}}
+            - `{{name}}`
+            {{#if type.names}}- Type: `{{type.names}}`{{/if}}
+            {{#if description}}- Description: {{description}}{{/if}}
+        {{/each}}
+    {{/if}}
+
+    {{#if returns}}
+        #### Returns
+        {{#each returns}}
+            - `{{type.names}}`
+        {{/each}}
+    {{/if}}
+
+    {{#if examples}}
+        #### Example
+        {{#each examples}}
+            ```JS
+            {{{this}}}
+            ```
+        {{/each}}
+    {{/if}}
+    <a href="https://github.com/BrooonS/queryzz/blob/master/src/lib/{{name}}.ts" target="_blank">Source code</a>
+    * * *
+{{/functions}}

@@ -1,0 +1,8 @@
+/dist
+/types
+/test
+webpack.config.js
+.eslintrc.js
+/src/modules/*
+/src/amino/*
+lol.js

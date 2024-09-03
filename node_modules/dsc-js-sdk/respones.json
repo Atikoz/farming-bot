@@ -1,0 +1,26 @@
+[
+  {
+    "validatorId": 1,
+    "validator": {
+      "moniker": "Validator Alpha",
+      "address": "dxvaloper14elhyzmq95f98wrkvujtsr5cyudffp6qk9wmzm",
+      "identity": "identity"
+    },
+    "stakes": [
+      {
+        "amount": "30000000000000000000",
+        "baseAmount": "30000000000000000000",
+        "unbondAmount": "0",
+        "unbondBaseAmount": "0",
+        "redelegatedAmount": "10000000000000000000",
+        "redelegatedBaseAmount": "10000000000000000000",
+        "coinDenom": "del",
+        "toValidator": {
+          "moniker": "Validator Beta",
+          "address": "dxvaloper1yvgq6uh35a395hexhxcde2zfpwwafzpaxvupmc",
+          "identity": "identity"
+        }
+      }
+    ]
+  }
+]

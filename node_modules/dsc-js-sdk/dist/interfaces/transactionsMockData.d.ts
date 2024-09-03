@@ -1,0 +1,21 @@
+import { clientMsgMultiSendCoin, clientMsgCreateWallet, clientMsgUpdateCoin, clientMsgSendCoin, clientMsgCreateCoin, clientMsgNftMint, clientMsgTransferNft, clientMsgBurnNft, clientBuyCoin, clientSellCoin, clientSellAllCoin, clientIssueCheck, clientRedeemCheck } from "./clientInterfaces";
+export declare const sendCoin: clientMsgSendCoin;
+export declare const updateCoin: clientMsgUpdateCoin;
+export declare const createCoin: clientMsgCreateCoin;
+export declare const multiSendCoin: clientMsgMultiSendCoin[];
+export declare const createWallet: clientMsgCreateWallet;
+export declare const nftMint: clientMsgNftMint;
+export declare const nftTransfer: clientMsgTransferNft;
+export declare const nftBurn: clientMsgBurnNft;
+export declare const buyCoins: clientBuyCoin;
+export declare const sellCoins: clientSellCoin;
+export declare const sellAllCoins: clientSellAllCoin;
+export declare const checkIssue: clientIssueCheck;
+export declare const checkRedeem: clientRedeemCheck;
+export declare const txOptions: {
+    feeCoin: string;
+    message: string;
+    txBroadcastMode: string;
+    accountInfoMode: string;
+    sendTxDirectly: boolean;
+};
