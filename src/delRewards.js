@@ -199,7 +199,7 @@ async function calcRewards() {
         }
       }
     } catch (e) {
-      console.lo('get stakes error')
+      console.log('get stakes error')
     }
 
   }

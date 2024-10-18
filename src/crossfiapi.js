@@ -96,7 +96,7 @@ export async function getValidatorCommissionXfi(
   validator_addr,
   height = 'latest'
 ) {
-  if (height === 'latest') {
+  if (height === 'latest') {getValidatorDelegations
     height = await getLastBlockHeight()
   }
 

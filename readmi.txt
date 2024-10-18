@@ -1,8 +1,5 @@
-1) чтобы запустить базу данных в docker
 
-docker run --name mongodb -d -p 27017:27017 -v $(pwd)/data:/data/db mongodb/mongodb-community-server:7.0.1-ubi8
-
-2) далее устанавливаем nodejs (https://github.com/nodesource/distributions#installation-instructions)
+1) устанавливаем nodejs (https://github.com/nodesource/distributions#installation-instructions)
 
 
 3) настраиваем .env файл

@@ -24,6 +24,23 @@ const userSchema = new Schema(
     referrer: {
       type: Schema.Types.Number,
       trim: true,
+      required: true,
+      index: true,
+      ref: 'User',
+    },
+
+    referrer2: {
+      type: Schema.Types.Number,
+      trim: true,
+      required: true,
+      index: true,
+      ref: 'User',
+    },
+
+    referrer3: {
+      type: Schema.Types.Number,
+      trim: true,
+      required: true,
       index: true,
       ref: 'User',
     },
