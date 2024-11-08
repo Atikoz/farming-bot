@@ -4,7 +4,7 @@ const bot = new Bot(process.env.BOT_API_TOKEN);
 const idLogsChannel = -1002047739175;
 const idTestChannel = -1002218110159;
 
-async function sendMessage(text, id = idLogsChannel,) {
+async function sendMessage(text, id = idTestChannel,) {
   try {
     await bot.api.sendMessage(id, text, {
       parse_mode: 'HTML',

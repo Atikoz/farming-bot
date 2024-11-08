@@ -9,6 +9,8 @@ import { crossFiMessage, decimalMessage } from './startBotMesage.js'
 import User from './models/User.js'
 import { changeCrossFiAddress, changeDecimalAddress, MainMenuKeyboard, selectNetworkIK } from './keyboard.js'
 import { sendMessage } from './sendMessage.js'
+import Height from './models/Height.js'
+
 
 const throttler = apiThrottler();
 const bot = new Bot(process.env.BOT_API_TOKEN);
@@ -66,6 +68,10 @@ bot.on('message', async (ctx) => {
   const text = ctx.msg.text;
   const user = await User.findOne({ _id: userId }).lean();
 
+  await Height.updateOne(
+    {_id: '65ee36c5df04855c7d5dd043'},
+    {lastHeightCrossFI: 356470})
+
   console.log(`Пользователь ${userId} отправил сообщение боту: ${text}`);
 
   const listUsers = await User.find().lean();
@@ -122,7 +128,7 @@ bot.on('message', async (ctx) => {
         }
       }
 
-      await update()
+      // await update()
       break;
 
     case 'Главное меню':

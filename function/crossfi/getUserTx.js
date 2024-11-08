@@ -1,23 +1,28 @@
-export const getUserTx = async (address) => {
+import { StargateClient } from '@cosmjs/stargate'
+const { CROSSFI_RPC_URL } = process.env;
+
+const client = await StargateClient.connect(CROSSFI_RPC_URL);
+
+async function getUserTx(address) {
   try {
-    const requestOptions = {
-      method: "GET",
-      redirect: "follow"
-    };
+    console.log('address', address);
+
+    const sentTransactions = await client.searchTx([
+      { key: "message.sender", value: address }
+    ]);
   
-    const apiUrl = `https://mpxapi.bazerwallet.com/mpx/api/v1/txs?address=${address}&page=1`;
+    const receivedTransactions = await client.searchTx([
+      { key: "transfer.recipient", value: address }
+    ]);
+  
+    const allTransactions = [...sentTransactions, ...receivedTransactions];
     
-    const response = await fetch(apiUrl, requestOptions);
-    
-    if (response.status !== 200) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-  
-    const resultApi = await response.json();
-    const arrayTx = resultApi.data.txs;
-  
-    return arrayTx
+    return allTransactions;
+
   } catch (error) {
-    console.error(error)
+    console.error(error);
+    return []
   }
 }
+
+export default getUserTx;

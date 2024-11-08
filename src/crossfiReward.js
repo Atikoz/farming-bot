@@ -16,6 +16,7 @@ import {
   getValidatorDelegations,
 } from './crossfiapi.js'
 import { cosmjsSalt } from '@cosmjs/proto-signing/build/wallet.js'
+import getUserTx from '../function/crossfi/getUserTx.js';
 
 let {
   ADMIN_ID,
@@ -28,7 +29,8 @@ let {
   REF_PERCENT_CROSSFI,
   REF_PERCENT_1_LVL,
   REF_PERCENT_2_LVL,
-  REF_PERCENT_3_LVL
+  REF_PERCENT_3_LVL,
+  CROSSFI_RPC_URL
 } = process.env
 
 ADMIN_ID = Number(ADMIN_ID)
@@ -39,7 +41,10 @@ START_BLOCK_HEIGHT_CROSSFI = Number(START_BLOCK_HEIGHT_CROSSFI)
 CASHBACK_PERCENT_CROSSFI = Number(CASHBACK_PERCENT_CROSSFI)
 REF_PERCENT_CROSSFI = Number(REF_PERCENT_CROSSFI)
 
-const validatorRewardAddress = 'mx1gkqazfgq8tmc6r69u6s6wzlvcz7lufy75n2qtt'
+// old address - mx1gkqazfgq8tmc6r69u6s6wzlvcz7lufy75n2qtt
+// new address - mx1utyfgv6hlj85m06j4p567wca5jcuxztadcq0dh
+
+const validatorRewardAddress = 'mx1utyfgv6hlj85m06j4p567wca5jcuxztadcq0dh'
 
 const http = got.extend({
   prefixUrl: NODE_API_CROSSFI,
@@ -82,14 +87,22 @@ export async function calc() {
   lastHeightCrossFI = lastHeightCrossFI || START_BLOCK_HEIGHT_CROSSFI
 
   console.log(lastHeightCrossFI)
-  const { txs } = await got(
-    `https://xfiscan.com/cosmos-rpc/api/txs?address=${validatorRewardAddress}&page=1`
-  ).json()
 
-  const txLatestHeight = txs.find((tx) => {
-    if (JSON.stringify(tx).includes('withdraw_rewards')) return true
-    return false
-  }).height
+  const txs = await getUserTx(validatorRewardAddress);
+
+  // const txLatestHeight = txs.find((tx) => {
+  //   if (JSON.stringify(tx).includes('withdraw_rewards')) return true
+  //   return false
+  // }).height
+
+  const txLatestHeight = txs.find((tx) => 
+    tx.events && tx.events.some(event => event.type === 'withdraw_rewards')
+  )?.height;
+
+  if (!txLatestHeight) {
+    console.log("транзакций не найдено.");
+    return;
+  }
 
   if (txLatestHeight <= lastHeightCrossFI) {
     console.log('txLatestHeight <= lastHeightCrossFI', txLatestHeight, lastHeightCrossFI)
@@ -152,7 +165,7 @@ export async function calc() {
     // Знаходимо реферерів для всіх трьох рівнів
     const referrer = await User.findById(user.referrer);
     const referrer2 = await User.findById(user.referrer2);
-    const referrer3 = await User.findById(user.referrer3); F
+    const referrer3 = await User.findById(user.referrer3);
 
     if (
       validatorDelegationsHeight[referrer.addressCrossFi] &&
@@ -268,9 +281,8 @@ export async function calc() {
       prefix: 'mx',
     }
   )
-  const rpcEndpoint = 'https://tendermint.mineplex.io/'
   const client = await SigningStargateClient.connectWithSigner(
-    rpcEndpoint,
+    CROSSFI_RPC_URL,
     wallet,
     {
       gasPrice: '10000000000000mpx',

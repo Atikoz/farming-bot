@@ -26,23 +26,23 @@ const job = new CronJob(
   'UTC'
 )
 
-const checkDelegationsUser = new CronJob(
-  '*/5 * * * *',
-  async () => {
-    try {
-      const users = await User.find();
+// const checkDelegationsUser = new CronJob(
+//   '* * * * *',
+//   async () => {
+//     try {
+//       const users = await User.find();
 
-      for (const user of users) {
-        if (user.addressCrossFi) await checkDelegationsUserTx(user.addressCrossFi)
-      }
-    } catch (error) {
-      console.error(error.message);
-    }
-  },
-  null,
-  true,
-  'UTC'
-);
+//       for (const user of users) {
+//         if (user.addressCrossFi) await checkDelegationsUserTx(user.addressCrossFi)
+//       }
+//     } catch (error) {
+//       console.error(error.message);
+//     }
+//   },
+//   null,
+//   true,
+//   'UTC'
+// );
 
 const backupDataBase = new CronJob(
   '0 0 * * *',
@@ -60,9 +60,9 @@ const backupDataBase = new CronJob(
 );
 
 
-job.start();
-backupDataBase.start();
-checkDelegationsUser.start();
+// job.start();
+// backupDataBase.start();
+// checkDelegationsUser.start();
 
-console.log(job.nextDate())
+// console.log(job.nextDate())
 // runDecimal()

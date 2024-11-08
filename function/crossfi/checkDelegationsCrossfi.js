@@ -1,33 +1,34 @@
 import DelegateTransactions from "../../src/models/DelegateTransactions.js";
-import { getUserTx } from "../../function/crossfi/getUserTx.js"
 import { sendMessage } from "../../src/sendMessage.js";
 import User from "../../src/models/User.js";
+import getUserTx from "./getUserTx.js";
+import sleep from "../../helpers/sleep.js";
 
 const checkDelegationsUserTx = async (address) => {
   try {
-    console.log('start check crossfi delegation tx');
-
+    await sleep(5000);
     const transactions = await getUserTx(address);
+    transactions.forEach((tx) => console.log(tx))
+    console.log(transactions.length);
     const delegateTransactions = transactions.filter((tx) =>
-      tx.logs.some((log) =>
-        log.events.some((event) =>
-          event.type === 'delegate' &&
-          event.attributes.some(attr => attr.key === 'validator' && attr.value === process.env.VALIDATOR_ADDR_CROSSFI)
-        )
+      tx.events.some((event) =>
+        event.type === 'delegate' &&
+        event.attributes.some(attr => attr.key === 'validator' && attr.value === process.env.VALIDATOR_ADDR_CROSSFI)
       )
     )
+
+    console.log('delegateTransactions', delegateTransactions.length);
 
     if (!delegateTransactions.length) return
 
     for (const tx of delegateTransactions) {
-      const checkTxInDb = await DelegateTransactions.findOne({ hash: tx.txhash });
+      const checkTxInDb = await DelegateTransactions.findOne({ hash: tx.hash });
 
       if (checkTxInDb) return
 
       let newSharesValue;
 
-      tx.logs.forEach(log => {
-        log.events.forEach(event => {
+        tx.events.forEach(event => {
           if (event.type === "delegate") {
             event.attributes.forEach(attr => {
               if (attr.key === "new_shares") {
@@ -36,15 +37,14 @@ const checkDelegationsUserTx = async (address) => {
             });
           }
         });
-      });
 
-      const amount = (BigInt(newSharesValue) / 10n**18n).toString();
+      const amount = (BigInt(newSharesValue) / 10n ** 18n).toString();
 
-      console.log('tx hash:', tx.txhash);
+      console.log('tx hash:', tx.hash);
       console.log(`amount: ${amount} MPX`);
 
       await DelegateTransactions.create({
-        hash: tx.txhash,
+        hash: tx.hash,
         coin: 'mpx',
         amount: +amount
       });
