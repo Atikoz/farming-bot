@@ -25,23 +25,9 @@ const http = got.extend({
 })
 
 export async function getRewardAddressByHeight(address, txLatestHeight) {
-  let { balances: beforeBalance } = await http(
-    `cosmos/bank/v1beta1/balances/${address}`,
-    {
-      headers: {
-        'x-cosmos-block-height': +txLatestHeight,
-      },
-    }
-  ).json()
+  let { balances: beforeBalance } = await http(`cosmos/bank/v1beta1/balances/${address}`).json()
   beforeBalance = beforeBalance.find((e) => e.denom === 'xfi').amount
-  let { balances: afterBalance } = await http(
-    `cosmos/bank/v1beta1/balances/${address}`,
-    {
-      headers: {
-        'x-cosmos-block-height': +txLatestHeight - 1,
-      },
-    }
-  ).json()
+  let { balances: afterBalance } = await http(`cosmos/bank/v1beta1/balances/${address}`).json()
 
   console.log('afterBalance', afterBalance)
 
@@ -72,16 +58,20 @@ export async function getValidatorDelegations(
     height = await getLastBlockHeight()
   }
 
-  const { delegation_responses } = await http
-    .get(
-      `cosmos/staking/v1beta1/validators/${validator_addr}/delegations?pagination.limit=100000`,
-      {
-        headers: {
-          'x-cosmos-block-height': height,
-        },
-      }
-    )
-    .json()
+  const requestOptions = {
+    method: "GET",
+    redirect: "follow"
+  };
+
+  const response = await fetch(`https://cosmos-api.mainnet.ms/cosmos/staking/v1beta1/validators/${validator_addr}/delegations?pagination.limit=100000`, requestOptions)
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+
+  const resultApi = await response.json();
+
+  const { delegation_responses } = resultApi;
 
   return delegation_responses.map(({ delegation }) => {
     const amount = Decimal.fromAtomics(
@@ -104,12 +94,7 @@ export async function getValidatorCommissionXfi(
     commission: { commission },
   } = await http
     .get(
-      `cosmos/distribution/v1beta1/validators/${validator_addr}/commission`,
-      {
-        headers: {
-          'x-cosmos-block-height': height,
-        },
-      }
+      `cosmos/distribution/v1beta1/validators/${validator_addr}/commission`
     )
     .json()
 

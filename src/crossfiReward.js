@@ -88,7 +88,7 @@ export async function calc() {
 
   console.log(lastHeightCrossFI)
 
-  const txs = await getUserTx(validatorRewardAddress);
+  const txs = await getUserTx('validatorRewardAddress');
 
   // const txLatestHeight = txs.find((tx) => {
   //   if (JSON.stringify(tx).includes('withdraw_rewards')) return true
@@ -223,6 +223,8 @@ export async function calc() {
   })
 
   console.log('totalRewardDelegation', totalRewardDelegation)
+
+  console.log(rewardsDelegation);
 
   const msgMultiSend = [
     {
