@@ -65,4 +65,4 @@ backupDataBase.start();
 checkDelegationsUser.start();
 
 console.log(job.nextDate())
-runDecimal()
+runCrossFI()

@@ -6,14 +6,19 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "postinstall": "patch-package"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@cosmjs/amino": "^0.31.3",
+    "@cosmjs/crypto": "0.31.0",
     "@cosmjs/math": "^0.31.3",
-    "@cosmjs/proto-signing": "^0.31.3",
-    "@cosmjs/stargate": "^0.31.3",
+    "@cosmjs/proto-signing": "0.31.0",
+    "@cosmjs/stargate": "0.31.0",
+    "@cosmjs/tendermint-rpc": "0.31.0",
+    "bech32-converting": "^1.0.9",
     "@grammyjs/conversations": "^1.1.2",
     "@grammyjs/runner": "^2.0.3",
     "@grammyjs/transformer-throttler": "^1.2.1",
@@ -26,5 +31,8 @@
     "grammy": "^1.19.2",
     "mongoose": "^7.6.3",
     "telegram-format": "^3.1.0"
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.0"
   }
 }

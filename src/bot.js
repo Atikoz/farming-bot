@@ -1,7 +1,7 @@
 import { conversations, createConversation } from '@grammyjs/conversations'
 import { run } from '@grammyjs/runner'
 import { apiThrottler } from '@grammyjs/transformer-throttler'
-import { Bot, session, InlineKeyboard } from 'grammy'
+import { Bot, session } from 'grammy'
 
 import dd from 'dedent'
 
@@ -9,7 +9,6 @@ import { crossFiMessage, decimalMessage } from './startBotMesage.js'
 import User from './models/User.js'
 import { changeCrossFiAddress, changeDecimalAddress, MainMenuKeyboard, selectNetworkIK } from './keyboard.js'
 import { sendMessage } from './sendMessage.js'
-import getUserTx from '../function/crossfi/getUserTx.js'
 
 
 const throttler = apiThrottler();
@@ -101,7 +100,7 @@ bot.on('message', async (ctx) => {
             console.log('referrer1Id', u.referrer);
             console.log('referrer2Id', referrer2Id);
             console.log('referrer3Id', referrer3Id);
-  
+
             await User.updateOne(
               { _id: u._id },
               {
@@ -111,12 +110,12 @@ bot.on('message', async (ctx) => {
                 },
               }
             );
-  
+
             console.log('user reffer update')
             console.log('----------------');
 
           };
-          
+
           console.log('update done');
         } catch (error) {
           console.error(error)
@@ -144,7 +143,7 @@ bot.on('message', async (ctx) => {
       break;
 
     case 'Стейкинг':
-      ctx.reply('В hfphf,jnrt')
+      ctx.reply('В разработке')
       break;
 
     case 'Пригласить друга':

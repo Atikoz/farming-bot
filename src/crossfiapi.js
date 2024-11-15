@@ -1,5 +1,6 @@
 import { Decimal } from '@cosmjs/math'
 import got from 'got'
+import { getUserBalance } from '../function/crossfi/getUserBalance.js';
 
 const http = got.extend({
   prefixUrl: process.env.NODE_API_CROSSFI,
@@ -25,20 +26,22 @@ const http = got.extend({
 })
 
 export async function getRewardAddressByHeight(address, txLatestHeight) {
-  let { balances: beforeBalance } = await http(`cosmos/bank/v1beta1/balances/${address}`).json()
-  beforeBalance = beforeBalance.find((e) => e.denom === 'xfi').amount
-  let { balances: afterBalance } = await http(`cosmos/bank/v1beta1/balances/${address}`).json()
+  let { coins: beforeCoins } = await getUserBalance(address);
+  let beforeBalance = beforeCoins.find((e) => e.denom === 'xfi')?.amount || '0';
 
-  console.log('afterBalance', afterBalance)
+  // Отримуємо оновлений баланс
+  let { coins: afterCoins } = await getUserBalance(address);
+  let afterBalance = afterCoins.find((e) => e.denom === 'xfi')?.amount || '0';
 
-  afterBalance = afterBalance.find((e) => e.denom === 'xfi')?.amount || '10000'
+  // Логування балансу для відладки
+  console.log('beforeBalance', beforeBalance);
+  console.log('afterBalance', afterBalance);
 
-  console.log('afterBalance', afterBalance)
-
+  // Обчислення винагороди
   const reward = Decimal.fromAtomics(beforeBalance, 18)
     .minus(Decimal.fromAtomics(afterBalance, 18))
-    .toFloatApproximation()
-  return reward
+    .toFloatApproximation();
+  return +afterBalance / 1e18
 }
 
 export async function getLastBlockHeight() {
@@ -78,7 +81,10 @@ export async function getValidatorDelegations(
       Decimal.fromUserInput(delegation.shares, 18).toString(),
       18
     ).toString()
-    return [delegation.delegator_address, parseInt(amount)]
+
+    const a = [delegation.delegator_address, parseInt(amount)];
+    console.log(a);
+    return a
   })
 }
 

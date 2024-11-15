@@ -4,7 +4,7 @@ import got from 'got'
 import fromExponential from 'from-exponential';
 
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
-import { SigningStargateClient } from '@cosmjs/stargate'
+import { GasPrice, SigningStargateClient } from '@cosmjs/stargate'
 import dd from 'dedent'
 
 import Height from './models/Height.js'
@@ -17,6 +17,7 @@ import {
 } from './crossfiapi.js'
 import { cosmjsSalt } from '@cosmjs/proto-signing/build/wallet.js'
 import getUserTx from '../function/crossfi/getUserTx.js';
+import { stringToPath } from '@cosmjs/crypto';
 
 let {
   ADMIN_ID,
@@ -40,9 +41,6 @@ COMMISION_PERCENT_VALIDATOR_CROSSFI = Number(
 START_BLOCK_HEIGHT_CROSSFI = Number(START_BLOCK_HEIGHT_CROSSFI)
 CASHBACK_PERCENT_CROSSFI = Number(CASHBACK_PERCENT_CROSSFI)
 REF_PERCENT_CROSSFI = Number(REF_PERCENT_CROSSFI)
-
-// old address - mx1gkqazfgq8tmc6r69u6s6wzlvcz7lufy75n2qtt
-// new address - mx1utyfgv6hlj85m06j4p567wca5jcuxztadcq0dh
 
 const validatorRewardAddress = 'mx1utyfgv6hlj85m06j4p567wca5jcuxztadcq0dh'
 
@@ -69,6 +67,11 @@ const http = got.extend({
   },
 })
 
+const GAS_PRICE = {
+  mpx: GasPrice.fromString('10000000000000mpx'),
+  xfi: GasPrice.fromString('100000000000xfi'),
+};
+
 export async function run() {
   console.log('run crossfi')
   while (true) {
@@ -88,14 +91,9 @@ export async function calc() {
 
   console.log(lastHeightCrossFI)
 
-  const txs = await getUserTx('validatorRewardAddress');
+  const txs = await getUserTx(validatorRewardAddress);
 
-  // const txLatestHeight = txs.find((tx) => {
-  //   if (JSON.stringify(tx).includes('withdraw_rewards')) return true
-  //   return false
-  // }).height
-
-  const txLatestHeight = txs.find((tx) => 
+  const txLatestHeight = txs.find((tx) =>
     tx.events && tx.events.some(event => event.type === 'withdraw_rewards')
   )?.height;
 
@@ -114,15 +112,14 @@ export async function calc() {
   )
 
   const totalReward = await getRewardAddressByHeight(
-    'mx1gkqazfgq8tmc6r69u6s6wzlvcz7lufy75n2qtt',
-    txLatestHeight
+    validatorRewardAddress
   )
   let fullDelegetionAmount = 0
   Object.entries(validatorDelegationsHeight).forEach(([key, value]) => {
     fullDelegetionAmount += value
   })
 
-  console.log('rossfi totalReward, fullDelegetionAmount - ', totalReward, fullDelegetionAmount)
+  console.log('crossfi totalReward, fullDelegetionAmount - ', totalReward, fullDelegetionAmount)
 
   const rewardsDelegation = {}
   let users = await User.find({
@@ -277,22 +274,34 @@ export async function calc() {
 
   console.log(JSON.stringify(msgMultiSend, '', 4))
 
+  const HD_PATHS = [stringToPath("m/44'/118'/0'/0/0"), stringToPath("m/44'/60'/0'/0/0")];
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
     VALIDATOR_SEED_CROSSFI,
     {
       prefix: 'mx',
+      hdPaths: HD_PATHS
     }
   )
+  const [oldAddressAccountData, newAddressAccountData] = await wallet.getAccounts();
+  console.log('old address:', oldAddressAccountData.address);
+  console.log('new address:', newAddressAccountData.address);
+
+  const gasPrice = GAS_PRICE.mpx
+
+  const clientOptions = {
+    gasPrice,
+    broadcastTimeoutMs: 5000,
+    broadcastPollIntervalMs: 1000,
+  };
+
   const client = await SigningStargateClient.connectWithSigner(
     CROSSFI_RPC_URL,
     wallet,
-    {
-      gasPrice: '10000000000000mpx',
-    }
+    clientOptions
   )
 
   const transactionHash = await client.signAndBroadcastSync(
-    'mx1gkqazfgq8tmc6r69u6s6wzlvcz7lufy75n2qtt',
+    validatorRewardAddress,
     msgMultiSend,
     'auto',
     'Выплата вознаграждения по программе реферального фарминга https://t.me/BazerFarming_bot'

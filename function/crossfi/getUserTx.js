@@ -19,6 +19,17 @@ async function getUserTx(address) {
     
     return allTransactions;
 
+    // const requestOptions = {
+    //   method: "GET",
+    //   redirect: "follow"
+    // };
+    
+    // const response = await fetch(`https://xfiscan.com/api/1.0/txs?address=${address}&page=1&limit=10&sort=-hieght`, requestOptions);
+    // const resultApi = response.json();
+
+    // return resultApi.docs
+  
+
   } catch (error) {
     console.error(error);
     return []
