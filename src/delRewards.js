@@ -152,7 +152,7 @@ export async function run() {
               18
             ).toFloatApproximation(),
             coin: 'DEL',
-            to: 'd01tjnu98de7dnth6wgfzq0c8yvq5u05gdurgxkew',
+            to: '0x5ca7c29db9f366bbe9c84880fc1c8c0538fa21bc',
 
           },
           { feeCoin: 'DEL', txBroadcastMode: 'sync', message: 'Возврат суммы по программе реферального фарминга https://t.me/BAZERREFFARMING' }

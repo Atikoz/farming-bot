@@ -60,9 +60,9 @@ const backupDataBase = new CronJob(
 );
 
 
-job.start();
-backupDataBase.start();
-checkDelegationsUser.start();
+// job.start();
+// backupDataBase.start();
+// checkDelegationsUser.start();
 
-console.log(job.nextDate())
-runCrossFI()
+// console.log(job.nextDate())
+runCrossFI();

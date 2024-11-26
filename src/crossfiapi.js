@@ -26,11 +26,11 @@ const http = got.extend({
 })
 
 export async function getRewardAddressByHeight(address, txLatestHeight) {
-  let { coins: beforeCoins } = await getUserBalance(address);
+  let { balances: beforeCoins } = await getUserBalance(address);
   let beforeBalance = beforeCoins.find((e) => e.denom === 'xfi')?.amount || '0';
 
   // Отримуємо оновлений баланс
-  let { coins: afterCoins } = await getUserBalance(address);
+  let { balances: afterCoins } = await getUserBalance(address);
   let afterBalance = afterCoins.find((e) => e.denom === 'xfi')?.amount || '0';
 
   // Логування балансу для відладки

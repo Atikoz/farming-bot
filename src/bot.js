@@ -66,6 +66,7 @@ bot.on('message', async (ctx) => {
   const text = ctx.msg.text;
   const user = await User.findOne({ _id: userId }).lean();
 
+  
   console.log(`Пользователь ${userId} отправил сообщение боту: ${text}`);
 
   const listUsers = await User.find().lean();
@@ -84,47 +85,6 @@ bot.on('message', async (ctx) => {
   }, { referrer1Lvl: 0, referrer2Lvl: 0, referrer3Lvl: 0 });
 
   switch (text) {
-    case '/update':
-      async function update() {
-        try {
-          const users = await User.find();
-
-          for (const u of users) {
-            const referrer1Data = await User.findOne({ _id: u.referrer }, 'referrer').lean();
-            const referrer2Id = referrer1Data ? referrer1Data.referrer : 0;
-
-            const referrer2Data = await User.findOne({ _id: referrer2Id }, 'referrer').lean();
-            const referrer3Id = referrer2Data ? referrer2Data.referrer : 0;
-
-            console.log('id', u._id);
-            console.log('referrer1Id', u.referrer);
-            console.log('referrer2Id', referrer2Id);
-            console.log('referrer3Id', referrer3Id);
-
-            await User.updateOne(
-              { _id: u._id },
-              {
-                $set: {
-                  referrer2: referrer2Id,
-                  referrer3: referrer3Id,
-                },
-              }
-            );
-
-            console.log('user reffer update')
-            console.log('----------------');
-
-          };
-
-          console.log('update done');
-        } catch (error) {
-          console.error(error)
-        }
-      }
-
-      // await update()
-      break;
-
     case 'Главное меню':
       const numberOfReferrals1Lvl = referralCounts.referrer1Lvl;
       const numberOfReferrals2Lvl = referralCounts.referrer2Lvl;

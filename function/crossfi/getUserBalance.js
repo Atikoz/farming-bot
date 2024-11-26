@@ -4,9 +4,9 @@ export const getUserBalance = async (address) => {
     redirect: "follow"
   };
   
-  const response = await fetch(`https://xfiscan.com/api/1.0/addresses/${address}`, requestOptions);
+  const response = await fetch(`https://cosmos-api.mainnet.ms/cosmos/bank/v1beta1/balances/${address}`, requestOptions);
 
-  const resultApi = response.json();
-
+  const resultApi = await response.json();
+  
   return resultApi
 }
