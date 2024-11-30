@@ -18,6 +18,7 @@ import {
 import { cosmjsSalt } from '@cosmjs/proto-signing/build/wallet.js'
 import getUserTx from '../function/crossfi/getUserTx.js';
 import { stringToPath } from '@cosmjs/crypto';
+import { toBaseUnit } from '../helpers/toBaseUnit.js';
 
 let {
   ADMIN_ID,
@@ -42,20 +43,12 @@ START_BLOCK_HEIGHT_CROSSFI = Number(START_BLOCK_HEIGHT_CROSSFI)
 CASHBACK_PERCENT_CROSSFI = Number(CASHBACK_PERCENT_CROSSFI)
 REF_PERCENT_CROSSFI = Number(REF_PERCENT_CROSSFI)
 
-const validatorRewardAddress = 'mx1utyfgv6hlj85m06j4p567wca5jcuxztadcq0dh'
+const validatorRewardAddress = 'mx1v2d99a2qrrr60peh3jdmwxjlmrzpxdz6jf0xm7'
 
 const GAS_PRICE = {
   mpx: GasPrice.fromString('10000000000000mpx'),
   xfi: GasPrice.fromString('100000000000xfi'),
 };
-
-const BASE_UNIT = "1000000000000000000";
-
-function toBaseUnit(value) {
-  const floatValue = parseFloat(value);
-  const result = BigInt(Math.round(floatValue * parseFloat(BASE_UNIT)));
-  return result.toString();
-}
 
 export async function run() {
   console.log('run crossfi')

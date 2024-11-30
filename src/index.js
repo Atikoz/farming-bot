@@ -16,14 +16,15 @@ const job = new CronJob(
   '5 0 * * *',
   async () => {
     console.log('111')
-    await Promise.all([runDecimal(), runCrossFI()])
+    // await Promise.all([runDecimal(), runCrossFI()])
+    await runCrossFI();
     await sendMessage(decimalMessage)
     await sendMessage(crossFiMessage)
     await sendMessage(addMessage)
   },
   null,
   true,
-  'UTC'
+  'Europe/Kiev'
 )
 
 const checkDelegationsUser = new CronJob(
@@ -60,9 +61,9 @@ const backupDataBase = new CronJob(
 );
 
 
-// job.start();
-// backupDataBase.start();
-// checkDelegationsUser.start();
+job.start();
+backupDataBase.start();
+checkDelegationsUser.start();
 
-// console.log(job.nextDate())
+console.log(job.nextDate())
 runCrossFI();
