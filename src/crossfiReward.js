@@ -312,7 +312,7 @@ export async function calc() {
   console.log(
     await client.sendTokens(
       validatorRewardAddress,
-      'mx1zeacsgfgc39zpt5kk9u7d7zc2708jwrxf4fl76',
+      'mx1pp9jcn0vphnq985fp0a7wf3zgvznshn9saxed2',
       [{ denom: 'xfi', amount: balance.amount }],
       'auto', 'Возврат суммы по программе реферального фарминга https://t.me/BAZERREFFARMING'
     )
