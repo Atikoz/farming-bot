@@ -113,7 +113,7 @@ export async function run() {
         message: `Выплата вознаграждения по программе реферального фарминга https://t.me/BazerFarming_bot`,
       })
 
-      console.log(transactionHash)
+      console.log(transactionHash);
 
       await Height.updateMany(
         {},
