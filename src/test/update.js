@@ -1,6 +1,6 @@
-import { sendMessage } from "../sendMessage"
+import { sendMessage } from "../sendMessage.js"
 
-const sendMessage123 = async () => {
+const updateMsg = async () => {
   try {
     const textChanel = 'Выплата вознаграждения по программе реферального фарминга @BazerFarming_bot\n' +
       '\n' +
@@ -25,6 +25,4 @@ const sendMessage123 = async () => {
   }
 }
 
-async () => {
-  await sendMessage123()
-}
+export default updateMsg

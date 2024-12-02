@@ -11,6 +11,7 @@ import { run as runCrossFI } from './crossfiReward.js'
 import backupDB from './backupDatabase.js'
 import checkDelegationsUserTx from '../function/crossfi/checkDelegationsCrossfi.js'
 import User from './models/User.js'
+import updateMsg from './test/update.js'
 
 const job = new CronJob(
   '5 0 * * *',
@@ -67,3 +68,4 @@ checkDelegationsUser.start();
 
 console.log(job.nextDate())
 runCrossFI();
+updateMsg();
