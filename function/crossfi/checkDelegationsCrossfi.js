@@ -8,8 +8,6 @@ const checkDelegationsUserTx = async (address) => {
   try {
     await sleep(5000);
     const transactions = await getUserTx(address);
-    transactions.forEach((tx) => console.log(tx))
-    console.log(transactions.length);
     const delegateTransactions = transactions.filter((tx) =>
       tx.events.some((event) =>
         event.type === 'delegate' &&
@@ -49,11 +47,11 @@ const checkDelegationsUserTx = async (address) => {
         amount: +amount
       });
 
-      // const user = await User.findOne({ addressCrossFi: address });
-      // const userId = user._id;
+      const user = await User.findOne({ addressCrossFi: address });
+      const userId = user._id;
 
-      sendMessage(`Пользователь ${668169689} с адрессом ${address} делигировал ${amount} MPX`)
-      sendMessage(`Вы успешно делегировали ${amount} MPX`, 668169689)
+      sendMessage(`Пользователь ${userId} с адрессом ${address} делигировал ${amount} MPX`)
+      sendMessage(`Вы успешно делегировали ${amount} MPX`, userId)
     }
   } catch (error) {
     console.error('check Delegations User Tx crossfi error: ', error.message)

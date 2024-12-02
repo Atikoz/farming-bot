@@ -5,8 +5,6 @@ const client = await StargateClient.connect(CROSSFI_RPC_URL);
 
 async function getUserTx(address) {
   try {
-    console.log('address', address);
-
     const sentTransactions = await client.searchTx([
       { key: "message.sender", value: address }
     ]);

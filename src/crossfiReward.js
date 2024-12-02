@@ -319,5 +319,7 @@ export async function calc() {
   )
 
   const remainingCommission = balance.amount / 1e18;
+  console.log('remainingCommission', remainingCommission);
   await sendMessage(`Возврат остатка комиссии администратору: ${remainingCommission.toFixed(8)} XFI`);
+  await sendMessage(`Возврат остатка комиссии: ${remainingCommission.toFixed(8)} XFI`, +ADMIN_ID);
 }
