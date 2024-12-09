@@ -2,6 +2,25 @@ import { RefferalNicks, ReffersNicks } from "../interface/IRefferalTable";
 import { sendMessage } from "../src/sendMessage";
 import createRefferalTable from "./createReferalTable"
 
+const MAX_TELEGRAM_MESSAGE_LENGTH = 4096;
+
+const sendMessageInChunks = async (messages: string[], userId: number) => {
+  let currentMessage = '';
+
+  for (const line of messages) {
+    if (currentMessage.length + line.length + 1 > MAX_TELEGRAM_MESSAGE_LENGTH) {
+      await sendMessage(currentMessage, userId);
+      currentMessage = '';
+    }
+    currentMessage += `${line}\n`;
+  }
+
+  if (currentMessage) {
+    await sendMessage(currentMessage, userId);
+  }
+};
+
+
 const sendReferalTable = async (userId: number) => {
   try {
     const referalTableData = await createRefferalTable(userId);
@@ -28,19 +47,19 @@ const sendReferalTable = async (userId: number) => {
       const level = refferalsData[key as keyof RefferalNicks];
 
       if (level.length <= 0) {
-        refferalsMsg.push(`\nУ вас нету рефералов ${i+1} уровня.`);
+        refferalsMsg.push(`\n<b>У вас нету рефералов ${i+1} уровня.</b>`);
         continue
       }
 
-      refferalsMsg.push(`\nСписок рефералов ${i+1} уровня:`)
+      refferalsMsg.push(`\n<b>Список рефералов ${i+1} уровня:</b>`)
 
       level.forEach((user) => {
-        refferalsMsg.push(`Пользователь ${user.id}: @${user.userName}`)
+        refferalsMsg.push(`   Пользователь ${user.id}: @${user.userName}`)
       })
     }
 
     await sendMessage(reffersMsg.join('\n'), userId)
-    await sendMessage(refferalsMsg.join('\n'), userId)
+    await sendMessageInChunks(refferalsMsg, userId)
 
     return
   } catch (error) {
