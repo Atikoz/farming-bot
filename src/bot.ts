@@ -9,6 +9,7 @@ import { crossFiMessage, decimalMessage } from './startBotMesage.js'
 import User, { IUser } from './models/User'
 import { changeCrossFiAddress, changeDecimalAddress, MainMenuKeyboard, RefferalKeyboard, selectNetworkIK } from './keyboard.js'
 import { sendMessage } from './sendMessage.js'
+import sendReferalTable from '../function/sendReferalTable.js'
 
 interface MySession {
   id: number | null;
@@ -71,6 +72,7 @@ bot.command('start', async (ctx) => {
   if (!user) {
     await User.create({
       _id: ctx.session.id,
+      userName: userName,
       referrer: ctx.session.referrer,
       referrer2: referrer2Id,
       referrer3: referrer3Id
@@ -90,8 +92,16 @@ bot.on('message', async (ctx) => {
   const text = ctx.msg.text;
   const user = await User.findOne({ _id: userId }).lean();
   const userName = ctx.from.username;
+  const userNameOnDB = user.userName;
 
-  if (!userName) return ctx.reply('Для того что бы пользоваться ботом у вас должен быть установлен юзернейм! Пожалуйста, установите его и повторите попытку.')
+  if (!userName) return ctx.reply('Для того что бы пользоваться ботом у вас должен быть установлен юзернейм! Пожалуйста, установите его и повторите попытку.');
+
+  if (userName !== userNameOnDB) {
+    await User.updateOne(
+      { _id: userId },
+      {$set: { userName: userName}}
+    )
+  }
 
   console.log(`Пользователь ${userId} отправил сообщение боту: ${text}`);
 
@@ -146,7 +156,7 @@ bot.on('message', async (ctx) => {
       break;
 
     case 'Посмотреть реферальную структуру':
-      ctx.reply('В разработке')
+      await sendReferalTable(userId);
       break;
 
     case 'Адресса делегирования':

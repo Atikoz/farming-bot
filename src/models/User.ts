@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IUser {
   _id: number;
+  userName: string;
   addressCrossFi?: string;
   addressDecimal?: string;
   referrer: number;
@@ -18,6 +19,13 @@ const userSchema = new Schema<IUser>(
       type: Number,
       required: true,
       trim: true,
+    },
+
+    userName: {
+      type: String,
+      required: false,
+      trim: true,
+      default: ''
     },
 
     addressCrossFi: {
