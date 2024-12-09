@@ -1,12 +1,19 @@
 import { InlineKeyboard, Keyboard } from "grammy";
 
 export const MainMenuKeyboard = new Keyboard()
-  .text('Главное меню')
+  .text('Данные')
   .text('Стейкинг')
   .row()
-  .text('Пригласить друга')
+  .text('Рефералы')
   .row()
   .text('Адресса делегирования')
+  .resized();
+
+export const RefferalKeyboard = new Keyboard()
+  .text('Пригласить друга')
+  .text('Посмотреть реферальную структуру')
+  .row()
+  .text('Главное меню')
   .resized();
 
 export const selectNetworkIK = new InlineKeyboard()

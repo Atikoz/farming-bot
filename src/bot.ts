@@ -7,7 +7,7 @@ import dd from 'dedent'
 
 import { crossFiMessage, decimalMessage } from './startBotMesage.js'
 import User, { IUser } from './models/User'
-import { changeCrossFiAddress, changeDecimalAddress, MainMenuKeyboard, selectNetworkIK } from './keyboard.js'
+import { changeCrossFiAddress, changeDecimalAddress, MainMenuKeyboard, RefferalKeyboard, selectNetworkIK } from './keyboard.js'
 import { sendMessage } from './sendMessage.js'
 
 interface MySession {
@@ -52,6 +52,10 @@ bot.api.config.use(throttler)
 
 bot.command('start', async (ctx) => {
   await ctx.conversation.exit()
+  const userName = ctx.from.username;
+
+  if (!userName) return ctx.reply('Для того что бы пользоваться ботом у вас должен быть установлен юзернейм! Пожалуйста, установите его и повторите попытку.');
+
   const { id } = ctx.msg.from
   ctx.session.id = id
   ctx.session.referrer = +ctx.match || +process.env.ADMIN_ID
@@ -85,8 +89,10 @@ bot.on('message', async (ctx) => {
   const userId = ctx.msg.chat.id;
   const text = ctx.msg.text;
   const user = await User.findOne({ _id: userId }).lean();
+  const userName = ctx.from.username;
 
-  
+  if (!userName) return ctx.reply('Для того что бы пользоваться ботом у вас должен быть установлен юзернейм! Пожалуйста, установите его и повторите попытку.')
+
   console.log(`Пользователь ${userId} отправил сообщение боту: ${text}`);
 
   const listUsers = await User.find().lean();
@@ -105,7 +111,7 @@ bot.on('message', async (ctx) => {
   }, { referrer1Lvl: 0, referrer2Lvl: 0, referrer3Lvl: 0 });
 
   switch (text) {
-    case 'Главное меню':
+    case 'Данные':
       const numberOfReferrals1Lvl = referralCounts.referrer1Lvl;
       const numberOfReferrals2Lvl = referralCounts.referrer2Lvl;
       const numberOfReferrals3Lvl = referralCounts.referrer3Lvl;
@@ -113,7 +119,6 @@ bot.on('message', async (ctx) => {
       const homeText = [
         'Вы в главном меню!\n',
         `Ваш ID: <code>${userId}</code>\n`,
-        `💸 <b>Стейк:</b> ...\n`,
         `<b>👤 Количество рефералов 1 уровня:</b> ${numberOfReferrals1Lvl}`,
         `<b>👤 Количество рефералов 2 уровня:</b> ${numberOfReferrals2Lvl}`,
         `<b>👤 Количество рефералов 3 уровня:</b> ${numberOfReferrals3Lvl}`
@@ -126,6 +131,10 @@ bot.on('message', async (ctx) => {
       ctx.reply('В разработке')
       break;
 
+    case 'Рефералы':
+      ctx.reply('Выберите раздел:', { reply_markup: RefferalKeyboard })
+      break;
+
     case 'Пригласить друга':
       if (user.addressCrossFi && user.addressDecimal) {
         const referralUrl = `https://t.me/${process.env.BOT_USER_NAME}?start=${userId}`;
@@ -136,10 +145,18 @@ bot.on('message', async (ctx) => {
       }
       break;
 
+    case 'Посмотреть реферальную структуру':
+      ctx.reply('В разработке')
+      break;
+
     case 'Адресса делегирования':
       ctx.reply('Выберите пожалуйста сеть:', {
         reply_markup: selectNetworkIK
       })
+      break;
+
+    case 'Главное меню':
+      ctx.reply('Вы в главном меню!', { reply_markup: MainMenuKeyboard })
       break;
 
     default:
