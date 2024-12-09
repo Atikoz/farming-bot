@@ -81,3 +81,4 @@ backupDataBase.start();
 checkDelegationsUser.start();
 
 console.log(job.nextDate());
+await runCrossFI();

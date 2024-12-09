@@ -33,7 +33,7 @@ const userSchema = new Schema<IUser>(
     },
 
     referrer: {
-      type: Schema.Types.Number,
+      type: Number,
       trim: true,
       required: true,
       index: true,
@@ -41,7 +41,7 @@ const userSchema = new Schema<IUser>(
     },
 
     referrer2: {
-      type: Schema.Types.Number,
+      type: Number,
       trim: true,
       required: true,
       index: true,
@@ -49,7 +49,7 @@ const userSchema = new Schema<IUser>(
     },
 
     referrer3: {
-      type: Schema.Types.Number,
+      type: Number,
       trim: true,
       required: true,
       index: true,

@@ -133,13 +133,11 @@ export async function calc() {
       validatorDelegationsHeight[user.addressCrossFi]
 
 
-
     const commision = reward * COMMISION_PERCENT_VALIDATOR_CROSSFI
     const referralShare = commision * REF_PERCENT_CROSSFI;
 
     console.log('reward - ', reward, commision)
 
-    // Знаходимо реферерів для всіх трьох рівнів
     const referrer = await User.findById(user.referrer);
     const referrer2 = await User.findById(user.referrer2);
     const referrer3 = await User.findById(user.referrer3);
@@ -151,33 +149,35 @@ export async function calc() {
       rewardsDelegation[referrer.addressCrossFi].rewardRef = +(
         referralShare * REF_PERCENT_1_LVL
       ).toFixed(8)
-      console.log(`Пользователю <i>${referrer._id}</i> с адрессом: ${referrer.addressCrossFi} начисленно ${rewardsDelegation[referrer.addressCrossFi].rewardRef} XFI за реферала по 1 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
-      // await sendMessage(`Пользователю <i>${referrer._id}</i> с адрессом: ${referrer.addressCrossFi} начисленно ${rewardsDelegation[referrer.addressCrossFi].rewardRef} XFI за реферала по 1 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
+      // console.log(`Пользователю <i>${referrer._id}</i> с адрессом: ${referrer.addressCrossFi} начисленно ${rewardsDelegation[referrer.addressCrossFi].rewardRef} XFI за реферала по 1 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
+      await sendMessage(`Пользователю <i>${referrer._id}</i> с адрессом: ${referrer.addressCrossFi} начисленно ${rewardsDelegation[referrer.addressCrossFi].rewardRef} XFI за реферала по 1 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
     }
-    else if (
+
+    if (
       validatorDelegationsHeight[referrer2.addressCrossFi] &&
       referrer2._id !== ADMIN_ID
     ) {
       rewardsDelegation[referrer.addressCrossFi].rewardRef = +(
         referralShare * REF_PERCENT_2_LVL
       ).toFixed(8)
-      console.log(`Пользователю <i>${referrer2._id}</i> с адрессом: ${referrer2.addressCrossFi} начисленно ${rewardsDelegation[referrer2.addressCrossFi].rewardRef} XFI за реферала по 2 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
-      // await sendMessage(`Пользователю <i>${referrer2._id}</i> с адрессом: ${referrer2.addressCrossFi} начисленно ${rewardsDelegation[referrer2.addressCrossFi].rewardRef} XFI за реферала по 2 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
+      // console.log(`Пользователю <i>${referrer2._id}</i> с адрессом: ${referrer2.addressCrossFi} начисленно ${rewardsDelegation[referrer2.addressCrossFi].rewardRef} XFI за реферала по 2 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
+      await sendMessage(`Пользователю <i>${referrer2._id}</i> с адрессом: ${referrer2.addressCrossFi} начисленно ${rewardsDelegation[referrer2.addressCrossFi].rewardRef} XFI за реферала по 2 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
     }
-    else if (
+
+    if (
       validatorDelegationsHeight[referrer3.addressCrossFi] &&
       referrer3._id !== ADMIN_ID
     ) {
       rewardsDelegation[referrer.addressCrossFi].rewardRef = +(
         referralShare * REF_PERCENT_3_LVL
       ).toFixed(8)
-      console.log(`Пользователю <i>${referrer3._id}</i> с адрессом: ${referrer3.addressCrossFi} начисленно ${rewardsDelegation[referrer3.addressCrossFi].rewardRef} XFI за реферала по 3 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
-      // await sendMessage(`Пользователю <i>${referrer3._id}</i> с адрессом: ${referrer3.addressCrossFi} начисленно ${rewardsDelegation[referrer3.addressCrossFi].rewardRef} XFI за реферала по 3 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
+      // console.log(`Пользователю <i>${referrer3._id}</i> с адрессом: ${referrer3.addressCrossFi} начисленно ${rewardsDelegation[referrer3.addressCrossFi].rewardRef} XFI за реферала по 3 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
+      await sendMessage(`Пользователю <i>${referrer3._id}</i> с адрессом: ${referrer3.addressCrossFi} начисленно ${rewardsDelegation[referrer3.addressCrossFi].rewardRef} XFI за реферала по 3 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
     }
-    else if (referrer._id === ADMIN_ID || referrer2._id === ADMIN_ID || referrer3._id === ADMIN_ID) {
-      // Логування, якщо реферер є адміністратором
-      console.log(`Реферальное вознаграждение не начисляется, поскольку реферер является администратором: ${referrer._id}`);
-      // await sendMessage(`Реферальное вознаграждение не начисляется, поскольку реферер является администратором: ${referrer._id}`)
+
+    if (referrer._id === ADMIN_ID || referrer2._id === ADMIN_ID || referrer3._id === ADMIN_ID) {
+      // console.log(`Реферальное вознаграждение не начисляется, поскольку реферер является администратором: ${ADMIN_ID}`);
+      await sendMessage(`Реферальное вознаграждение не начисляется, поскольку реферер является администратором: ${referrer._id}`)
     }
 
     rewardsDelegation[user.addressCrossFi].reward = reward
