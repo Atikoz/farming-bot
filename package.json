@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js",
+    "start": "npx tsx src/index.ts",
     "postinstall": "patch-package"
   },
   "author": "",
@@ -18,21 +18,24 @@
     "@cosmjs/proto-signing": "0.31.0",
     "@cosmjs/stargate": "0.31.0",
     "@cosmjs/tendermint-rpc": "0.31.0",
-    "bech32-converting": "^1.0.9",
     "@grammyjs/conversations": "^1.1.2",
     "@grammyjs/runner": "^2.0.3",
     "@grammyjs/transformer-throttler": "^1.2.1",
+    "bech32-converting": "^1.0.9",
     "cron": "^3.1.6",
     "dedent": "^1.5.1",
     "dotenv": "^16.3.1",
     "dsc-js-sdk": "^1.1.44",
     "from-exponential": "^1.1.1",
-    "got": "^13.0.0",
     "grammy": "^1.19.2",
     "mongoose": "^7.6.3",
-    "telegram-format": "^3.1.0"
+    "telegram-format": "^3.1.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "patch-package": "^8.0.0"
+    "@types/got": "^9.6.12",
+    "@types/node": "^22.10.1",
+    "patch-package": "^8.0.0",
+    "typescript": "^5.7.2"
   }
 }
