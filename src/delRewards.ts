@@ -63,8 +63,6 @@ export async function run() {
     const getRewardAmountInCashback = await decimalService.getRewardAmountInCashback(totalReward);
     const { amount, priceCashback } = getRewardAmountInCashback;
 
-    console.log(amount)
-
     const sellCoin = await decimalService.sellCoin(amount);
 
     if (!sellCoin) {
@@ -112,15 +110,15 @@ export async function run() {
         ) + '\n'
     };
 
-    await sendMessage(message)
+    await sendMessage(message);
 
     const residue = await decimalService.getBalance(VALIDATOR_REWARD_ADDR_DECIMAL);
     const adminShare = residue.del;
 
-    const sendShare = await decimalService.sendCoin(adminWallet, adminShare, 'del');
+    const sendShare = await decimalService.sendCoin(adminWallet, adminShare - 3, 'del');
 
     if (sendShare) {
-      await sendMessage(`Возврат остатка комиссии администратору в размере ${adminShare} DEL`)
+      await sendMessage(`Возврат остатка комиссии администратору в размере ${adminShare - 3} DEL`)
     } else {
       throw new Error('error send admin share');
     }
@@ -129,7 +127,7 @@ export async function run() {
   }
 }
 
-const calcRewards = async (totalValidatorStake: number): Promise<ICalcReward> => {
+export const calcRewards = async (totalValidatorStake: number): Promise<ICalcReward> => {
   try {
     console.log('start')
     const rewardsDelegation: RewardsDelegation = {}
@@ -169,6 +167,8 @@ const calcRewards = async (totalValidatorStake: number): Promise<ICalcReward> =>
         reward: rewardProgram,
         rewardRef: 0
       };
+
+      console.log(user)
 
       const referrer = await User.findById(user.referrer);
       const referrer2 = await User.findById(user.referrer2);

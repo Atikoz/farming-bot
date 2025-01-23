@@ -4,7 +4,7 @@ import { connect } from 'mongoose'
 import './bot'
 import { sendMessage } from './sendMessage'
 import { addMessage, crossFiMessage, decimalMessage } from './startBotMesage'
-// import { run as runDecimal } from './delRewards'
+import { run as runDecimal } from './delRewards'
 import { run as runCrossFI } from './crossfiReward'
 import backupDB from './backupDatabase'
 import checkDelegationsUserTx from '../function/crossfi/checkDelegationsCrossfi'
@@ -23,8 +23,7 @@ const job = new CronJob(
   '5 0 * * *',
   async () => {
     console.log('111')
-    // await Promise.all([runDecimal(), runCrossFI()])
-    await runCrossFI();
+    await Promise.all([runDecimal(), runCrossFI()])
     await sendMessage(decimalMessage)
     await sendMessage(crossFiMessage)
     await sendMessage(addMessage)
