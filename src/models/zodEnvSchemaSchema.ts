@@ -8,6 +8,9 @@ const envSchema = z.object({
   VALIDATOR_ADDR_DECIMAL: z.string(),
   VALIDATOR_SEED_DECIMAL: z.string(),
 
+  VALIDATOR_REWARD_ADDR_DECIMAL: z.string().default('0xe2c8943357fc8f4dbf52a869af3b1da4b1c3097d'),
+  VALIDATOR_REWARD_ADDR_CROSSFI: z.string().default('mx1v2d99a2qrrr60peh3jdmwxjlmrzpxdz6jf0xm7'),
+
   START_BLOCK_HEIGHT_CROSSFI: z.string().transform(Number).default('0'),
   START_DATE_HEIGHT_DECIMAL: z.string(),
 

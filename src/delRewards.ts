@@ -1,233 +1,193 @@
-import { Decimal as DecimalCosm } from '@cosmjs/math'
-import got from 'got'
-import pkg from 'dsc-js-sdk'
-const { Wallet, Decimal, DecimalNetworks } = pkg
-
+import Big from "big.js";
+import decimalService from "../function/decimal/decimalService";
+import logRefReward from "../helpers/logRefReward";
+import User from "./models/User";
+import envSchema from "./models/zodEnvSchemaSchema";
+import { sendMessage } from "./sendMessage";
+import Height from "./models/Height";
 import dd from 'dedent'
-import Height from './models/Height.js'
-import User from './models/User.js'
-import { sendMessage } from './sendMessage.js'
-import envSchema from './models/zodEnvSchemaSchema.js'
 
 const env = envSchema.parse(process.env);
 
-let {
-  ADMIN_ID,
-  VALIDATOR_ADDR_DECIMAL,
-  VALIDATOR_SEED_DECIMAL,
-  START_DATE_HEIGHT_DECIMAL,
-  NODE_API_DECIMAL,
-  COMMISION_PERCENT_VALIDATOR_DECIMAL,
-  CASHBACK_PERCENT_DECIMAL,
-  REF_PERCENT_DECIMAL,
-} = env;
+const { VALIDATOR_REWARD_ADDR_DECIMAL } = env;
+
+interface RewardDetails {
+  reward: number;
+  rewardRef: number;
+  rewardInCashback?: number;
+}
+
+export interface RewardsDelegation {
+  [address: string]: RewardDetails;
+}
+
+interface ICalcReward {
+  rewardsDelegation: RewardsDelegation;
+  validatorCommission: number
+}
+
+const PARTICIPATION_PERCENT = 0.09; // 9%
+const REFERRAL_PERCENT = 0.04;      // 4%
+const COMMISION_PERCENT = 0.02;  // 2%
+
+const adminWallet = '0x5ca7c29db9f366bbe9c84880fc1c8c0538fa21bc'
 
 export async function run() {
   console.log('run decimal')
-  let rewardsDelegation = {}
-  while (true) {
-    try {
-      rewardsDelegation = await calcRewards()
-      break
-    } catch (error) {
-      console.log(error)
+  try {
+    const totalValidatorStake = await decimalService.getTotalStakeValidator();
+
+    console.log(`total stake validator: ${totalValidatorStake} DEL`);
+
+    let rewardsDelegation: RewardsDelegation = {}
+    let validatorCommission: number = 0
+
+    while (true) {
+      try {
+        const calculateRewards = await calcRewards(totalValidatorStake)
+        rewardsDelegation = calculateRewards.rewardsDelegation;
+        validatorCommission = calculateRewards.validatorCommission;
+        break
+      } catch (error) {
+        console.log(error)
+      }
+      await new Promise((resolve) => setTimeout(resolve, 900000))
     }
-    await new Promise((resolve) => setTimeout(resolve, 900000))
-  }
 
-  const decimal = await Decimal.connect(DecimalNetworks.mainnet)
-  const decimalWallet = new Wallet(VALIDATOR_SEED_DECIMAL)
-  decimal.setWallet(decimalWallet)
-  const sender = await decimal.transactionSender()
+    const totalReward = Object.values(rewardsDelegation).reduce((acc, user) => {
+      return acc + (user.reward + user.rewardRef)
+    }, 0);
 
-  while (true) {
-    try {
-      const totalReward = Object.values(rewardsDelegation).reduce((a, b) => {
-        console.log(a, b)
-        return a + (b.rewardCashback + b.rewardRef)
-      }, 0)
+    console.log('Buy cashback coin');
 
-      console.log('Buy cashback coin')
+    const getRewardAmountInCashback = await decimalService.getRewardAmountInCashback(totalReward);
+    const { amount, priceCashback } = getRewardAmountInCashback;
 
-      const r = await sender.sellCoins(
-        {
-          sellCoin: 'DEL',
-          amount: totalReward,
-          getCoin: 'CASHBACK',
-        },
-        { txBroadcastMode: 'sync', message: 'buy cashback', feeCoin: 'DEL' }
-      )
+    await decimalService.sellCoin(amount);
 
-      console.log(r)
+    Object.keys(rewardsDelegation).map((wallet) => {
+      const { reward, rewardRef } = rewardsDelegation[wallet];
 
-      const { price } = await decimal.getCoin('CASHBACK')
-      Object.keys(rewardsDelegation).map((k) => {
-        const { rewardCashback, rewardRef } = rewardsDelegation[k]
-        const rewardCashbackCoin = (rewardCashback + rewardRef) / price
-        console.log(`rewardCashbackCoin ${k} ${rewardCashbackCoin}`)
-        rewardsDelegation[k].rewardCashbackCoin = rewardCashbackCoin
-      })
+      const bigReward = new Big(reward);
+      const bigRewardRef = new Big(rewardRef);
+      const bigPriceCashback = new Big(priceCashback);
+      const rewardCashbackCoin = bigReward.plus(bigRewardRef).div(bigPriceCashback);
 
-      const multiSendMsg = Object.keys(rewardsDelegation)
-        .map((k) => {
-          const { rewardCashbackCoin } = rewardsDelegation[k]
-          if (rewardCashbackCoin === 0) return false
-          return {
-            to: k,
-            coin: 'CASHBACK',
-            amount: rewardCashbackCoin,
-          }
-        })
-        .filter(Boolean)
-      console.log(multiSendMsg)
-      const { transactionHash } = await sender.multiSendCoin(multiSendMsg, {
-        txBroadcastMode: 'sync',
-        feeCoin: 'DEL',
-        message: `Выплата вознаграждения по программе реферального фарминга https://t.me/BazerFarming_bot`,
-      })
+      rewardsDelegation[wallet].rewardInCashback = parseFloat(rewardCashbackCoin.toFixed(8));
+    });
 
-      console.log(transactionHash);
+    const sendReward = await decimalService.multiSign(rewardsDelegation);
+    const { status, hash } = sendReward;
 
-      await Height.updateMany(
-        {},
-        { $set: { lastHeightDecimal: new Date().toISOString() } },
-        { upsert: true }
-      )
-
-      let message =
-        'Выплата вознаграждения по программе реферального фарминга @BazerFarming_bot\n\n' +
-        '<a href="https://explorer.decimalchain.com/transactions/' +
-        transactionHash +
-        '">🏷Мультисенд Decimal</a>\n'
-      multiSendMsg.map((m) => {
-        const { to, amount, coin } = m
-        message +=
-          dd`<a href="https://explorer.decimalchain.com/address/${to}">${to.substring(
-            0,
-            4
-          )}...${to.substring(to.length - 4)}</a> ${amount} ${coin}`.replace(
-            /\n/g,
-            ''
-          ) + '\n'
-      })
-      await sendMessage(message)
-      await new Promise((resolve) => setTimeout(resolve, 5000))
-      const rr = await decimal.getAddressBalances(decimalWallet.address)
-      const new1 = rr.del.amount.slice(-18)
-      let new2 = rr.del.amount.slice(0, -18)
-      new2 = (Number(new2) - 10).toString() + new1
-      console.log('amount', rr.del.amount, new2)
-      console.log(
-        await sender.sendCoin(
-          {
-            amount: DecimalCosm.fromAtomics(
-              new2,
-              18
-            ).toFloatApproximation(),
-            coin: 'DEL',
-            to: '0x5ca7c29db9f366bbe9c84880fc1c8c0538fa21bc',
-
-          },
-          { feeCoin: 'DEL', txBroadcastMode: 'sync', message: 'Возврат суммы по программе реферального фарминга https://t.me/BAZERREFFARMING' }
-        )
-      )
-      break
-    } catch (error) {
-      console.log(error)
+    if (!status) {
+      throw new Error('error multisign rewards');
     }
-    await new Promise((resolve) => setTimeout(resolve, 900000))
+
+    await Height.updateMany(
+      {},
+      { $set: { lastHeightDecimal: new Date().toISOString() } },
+      { upsert: true }
+    );
+
+    let message =
+      'Выплата вознаграждения по программе реферального фарминга @BazerFarming_bot\n\n' +
+      '<a href="https://explorer.decimalchain.com/transactions/' +
+      hash +
+      '">🏷Мультисенд Decimal</a>\n';
+
+    for (const key in rewardsDelegation) {
+      message +=
+        dd`<a href="https://explorer.decimalchain.com/address/${key}">${key.substring(
+          0,
+          4
+        )}...${key.substring(key.length - 4)}</a> ${rewardsDelegation[key].rewardInCashback} CASHBACK`.replace(
+          /\n/g,
+          ''
+        ) + '\n'
+    };
+
+    await sendMessage(message)
+
+    const residue = await decimalService.getBalance(VALIDATOR_REWARD_ADDR_DECIMAL);
+    const adminShare = residue.del;
+
+    const sendShare = await decimalService.sendCoin(adminWallet, adminShare, 'del');
+
+    if (sendShare) {
+      await sendMessage(`Возврат остатка комиссии администратору в размере ${adminShare} DEL`)
+    } else {
+      throw new Error('error send admin share');
+    }
+  } catch (error) {
+    console.error(`error decimal reward: ${error.message}`)
   }
 }
 
-async function calcRewards() {
-  const rewardsDelegation = {}
-  let { lastHeightDecimal } = await Height.findOne({})
-  lastHeightDecimal = lastHeightDecimal || START_DATE_HEIGHT_DECIMAL
+const calcRewards = async (totalValidatorStake: number): Promise<ICalcReward> => {
+  try {
+    console.log('start')
+    const rewardsDelegation: RewardsDelegation = {}
 
-  let users = await User.find({
-    addressDecimal: { $ne: null },
-  }).lean()
+    const balance = await decimalService.getBalance(VALIDATOR_REWARD_ADDR_DECIMAL);
+    const totalReward = balance.del;
+    const validatorCommission = totalReward * COMMISION_PERCENT;
 
-  for (let user of users) {
-    try {
-      console.log(`get stakes ${user._id} - ${user.addressDecimal}`)
+    let users = await User.find({
+      addressDecimal: { $ne: null },
+    }).lean()
 
-      const {
-        body: { Result: { rewards: result } },
-      } = await fetch(`${NODE_API_DECIMAL}api/v1/rewards/${user.addressDecimal}?limit=50&offset=0`)
+    for (let user of users) {
+      const result = await decimalService.getTotalUserStake(user.addressDecimal);
 
-      if (result === null) {
-        console.log('user.delegator = false')
-        user.delegator = false
-        continue
-      }
+      if (result.status && result.amount >= 1) {
+        user.delegator = true;
+        user.delegatedAmount = result.amount;
 
-      if (result.some((r) => r.validator_address === VALIDATOR_ADDR_DECIMAL)) {
-        user.delegator = true
         rewardsDelegation[user.addressDecimal] = {
           reward: 0,
-          commision: 0,
-          rewardCashback: 0,
           rewardRef: 0,
         }
+      } else {
+        user.delegator = false;
+        continue
       }
-    } catch (e) {
-      console.log('get stakes error')
     }
 
-  }
+    users = users.filter(({ delegator }) => delegator === true);
 
-  users = users.filter(({ delegator }) => delegator === true)
+    for (let user of users) {
+      const rewardProgram = (user.delegatedAmount / totalValidatorStake) * (totalReward * PARTICIPATION_PERCENT);
+      const rewardReferral = (user.delegatedAmount / totalValidatorStake) * (totalReward * REFERRAL_PERCENT);
 
-  for (let user of users) {
-    try {
-      if (user._id === ADMIN_ID) continue
+      rewardsDelegation[user.addressDecimal] = {
+        reward: rewardProgram,
+        rewardRef: 0
+      };
 
-      console.log(`get rewards ${user._id} - ${user.addressDecimal}`)
+      const referrer = await User.findById(user.referrer);
+      const referrer2 = await User.findById(user.referrer2);
+      const referrer3 = await User.findById(user.referrer3);
 
-      const {
-        body: {
-          Result: { rewards },
-        },
-      } = await fetch(`${NODE_API_DECIMAL}api/v1/rewards/${user.addressDecimal}?limit=300&offset=0`)
-
-      let reward = rewards
-        .filter(({ date, validator_address }) => {
-          if (
-            new Date(date).getTime() > new Date(lastHeightDecimal).getTime() &&
-            validator_address === VALIDATOR_ADDR_DECIMAL
-          )
-            return true
-        })
-        .reduce((a, { value: b }) => {
-          return DecimalCosm.fromAtomics(b, 18)
-            .plus(DecimalCosm.fromUserInput(a.toString(), 18))
-            .toString()
-        }, 0)
-
-      console.log(`reward ${user._id} - ${user.addressDecimal} ${reward}`)
-
-      reward = DecimalCosm.fromUserInput(reward, 18).toFloatApproximation()
-      const commision = reward * COMMISION_PERCENT_VALIDATOR_DECIMAL
-      const referrer = await User.findById(user.referrer)
-      if (
-        rewardsDelegation[referrer.addressDecimal] &&
-        referrer._id !== ADMIN_ID
-      ) {
-        rewardsDelegation[referrer.addressDecimal].rewardRef = +(
-          commision * REF_PERCENT_DECIMAL
-        ).toFixed(8)
+      if (referrer && referrer.addressDecimal in rewardsDelegation && referrer._id !== user._id) {
+        rewardsDelegation[referrer.addressDecimal].rewardRef += rewardReferral;
       }
 
-      rewardsDelegation[user.addressDecimal].reward = reward
-      rewardsDelegation[user.addressDecimal].commision = commision
-      rewardsDelegation[user.addressDecimal].rewardCashback = +(
-        commision * CASHBACK_PERCENT_DECIMAL
-      ).toFixed(8)
-    } catch (e) { }
+      if (referrer2 && referrer2.addressDecimal in rewardsDelegation && referrer2._id !== user._id) {
+        rewardsDelegation[referrer2.addressDecimal].rewardRef += rewardReferral;
+      }
 
+      if (referrer3 && referrer3.addressDecimal in rewardsDelegation && referrer3._id !== user._id) {
+        rewardsDelegation[referrer3.addressDecimal].rewardRef += rewardReferral;
+      }
+    }
+
+    await logRefReward(rewardsDelegation)
+
+    return {
+      rewardsDelegation,
+      validatorCommission
+    }
+  } catch (error) {
+    console.error(error)
   }
-
-  console.log(rewardsDelegation)
-  return rewardsDelegation
 }

@@ -31,10 +31,9 @@ const {
   REF_PERCENT_1_LVL,
   REF_PERCENT_2_LVL,
   REF_PERCENT_3_LVL,
-  CROSSFI_RPC_URL
+  CROSSFI_RPC_URL,
+  VALIDATOR_REWARD_ADDR_CROSSFI
 } = env;
-
-const validatorRewardAddress = 'mx1v2d99a2qrrr60peh3jdmwxjlmrzpxdz6jf0xm7'
 
 const GAS_PRICE = {
   mpx: GasPrice.fromString('10000000000000mpx'),
@@ -66,7 +65,7 @@ export async function calc() {
 
   console.log(lastHeightCrossFI)
 
-  const txs = await getUserTx(validatorRewardAddress);
+  const txs = await getUserTx(VALIDATOR_REWARD_ADDR_CROSSFI);
 
   const txLatestHeight = txs.find((tx) =>
     tx.events && tx.events.some(event => event.type === 'withdraw_rewards')
@@ -87,7 +86,7 @@ export async function calc() {
   )
 
   const totalReward = await getRewardAddressByHeight(
-    validatorRewardAddress
+    VALIDATOR_REWARD_ADDR_CROSSFI
   )
 
   if (totalReward < 1) {
@@ -210,7 +209,7 @@ export async function calc() {
       value: {
         inputs: [
           {
-            address: validatorRewardAddress,
+            address: VALIDATOR_REWARD_ADDR_CROSSFI,
             coins: [
               {
                 amount:
@@ -272,7 +271,7 @@ export async function calc() {
   )
 
   const transactionHash = await client.signAndBroadcastSync(
-    validatorRewardAddress,
+    VALIDATOR_REWARD_ADDR_CROSSFI,
     msgMultiSend,
     'auto',
     'Выплата вознаграждения по программе реферального фарминга https://t.me/BazerFarming_bot'
@@ -305,10 +304,10 @@ export async function calc() {
   })
   await sendMessage(message)
   await new Promise((resolve) => setTimeout(resolve, 10000))
-  const balance = await client.getBalance(validatorRewardAddress, 'xfi')
+  const balance = await client.getBalance(VALIDATOR_REWARD_ADDR_CROSSFI, 'xfi')
   console.log(
     await client.sendTokens(
-      validatorRewardAddress,
+      VALIDATOR_REWARD_ADDR_CROSSFI,
       'mx1pp9jcn0vphnq985fp0a7wf3zgvznshn9saxed2',
       [{ denom: 'xfi', amount: balance.amount }],
       'auto', 'Возврат суммы по программе реферального фарминга https://t.me/BAZERREFFARMING'

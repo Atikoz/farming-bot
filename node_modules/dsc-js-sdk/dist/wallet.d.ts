@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import { PrivKey, PubKey } from "./types/ethermint/crypto/v1/ethsecp256k1/keys";
 export declare function generateDerivationPath(depth: number): string;
 export declare function generateMnemonic(): string;

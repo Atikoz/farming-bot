@@ -10,7 +10,8 @@ export interface IUser {
   referrer3: number;
   createdAt?: Date;
   updatedAt?: Date;
-  delegator?: boolean
+  delegator?: boolean;
+  delegatedAmount?: number
 }
 
 const userSchema = new Schema<IUser>(
