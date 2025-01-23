@@ -63,7 +63,13 @@ export async function run() {
     const getRewardAmountInCashback = await decimalService.getRewardAmountInCashback(totalReward);
     const { amount, priceCashback } = getRewardAmountInCashback;
 
-    await decimalService.sellCoin(amount);
+    console.log(amount)
+
+    const sellCoin = await decimalService.sellCoin(amount);
+
+    if (!sellCoin) {
+      throw new Error('error sell coins decimal');
+    }
 
     Object.keys(rewardsDelegation).map((wallet) => {
       const { reward, rewardRef } = rewardsDelegation[wallet];
