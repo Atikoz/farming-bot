@@ -1,9 +1,9 @@
 import 'dotenv/config'
 import SDK from 'dsc-js-sdk'
 const { DecimalNetworks, DecimalEVM, Wallet } = SDK;
-import fromBaseUnit from '../../helpers/fromBaseUbit';
-import envSchema from '../../src/models/zodEnvSchemaSchema';
-import { RewardsDelegation } from '../../src/delRewards';
+import fromBaseUnit from '../../../helpers/fromBaseUbit';
+import envSchema from '../../models/zodEnvSchemaSchema';
+import { RewardsDelegation } from './delRewards';
 
 const env = envSchema.parse(process.env);
 
@@ -41,7 +41,7 @@ class DecimalService {
   constructor() {
     this.validatorAddress = '0x15192aac9d3b2400eee6e36a605c93ec95ab8124';
     this.wallet = new Wallet(VALIDATOR_SEED_DECIMAL);
-    this.decimalEVM = new DecimalEVM(this.wallet, DecimalNetworks.mainnet)
+    this.decimalEVM = new DecimalEVM(this.wallet, DecimalNetworks.mainnet);
   }
 
   async getBalance(address: string): Promise<IBalance> {
@@ -332,6 +332,25 @@ class DecimalService {
 
       return false
     }
+  }
+
+  async getValidatorDelegators(validatorAddress: string): Promise<any> {
+    try {
+      const requestOptions: RequestInit = {
+        method: "GET",
+        redirect: "follow" as RequestRedirect
+      };
+
+      const response = await fetch(`https://api.decimalchain.com/api/v1/validators/validators/${validatorAddress}/delegators`, requestOptions);
+      const resultApi = await response.json();
+
+      return resultApi.Result.items
+    } catch (error) {
+      console.error(`error get validator delegators: ${error.message}`);
+
+      return []
+    }
+
   }
 }
 

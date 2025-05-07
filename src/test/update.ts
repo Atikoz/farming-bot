@@ -1,6 +1,6 @@
 import { connect } from "mongoose"
 import User from "../models/User"
-import updateWallet from "../../function/decimal/updateDecimalWallet";
+import updateWallet from "../../function/updateDecimalWallet";
 
 const updateDecimalWallet = async () => {
   try {

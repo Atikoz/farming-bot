@@ -4,19 +4,14 @@ import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 import { GasPrice, SigningStargateClient } from '@cosmjs/stargate'
 import dd from 'dedent'
 
-import Height from './models/Height'
-import User from './models/User'
-import { sendMessage } from './sendMessage'
+import Height from '../../models/Height'
+import User from '../../models/User'
+import { sendMessage } from '../../sendMessage'
 
-import {
-  getRewardAddressByHeight,
-  getValidatorDelegations,
-} from './crossfiapi.js'
-
-import getUserTx from '../function/crossfi/getUserTx';
 import { stringToPath } from '@cosmjs/crypto';
-import { toBaseUnit } from '../helpers/toBaseUnit';
-import envSchema from './models/zodEnvSchemaSchema';
+import { toBaseUnit } from '../../../helpers/toBaseUnit';
+import envSchema from '../../models/zodEnvSchemaSchema';
+import crossfiService from './crossfiService';
 
 const env = envSchema.parse(process.env);
 
@@ -28,9 +23,7 @@ const {
   COMMISION_PERCENT_VALIDATOR_CROSSFI,
   CASHBACK_PERCENT_CROSSFI,
   REF_PERCENT_CROSSFI,
-  REF_PERCENT_1_LVL,
-  REF_PERCENT_2_LVL,
-  REF_PERCENT_3_LVL,
+  REF_PERCENT,
   CROSSFI_RPC_URL,
   VALIDATOR_REWARD_ADDR_CROSSFI
 } = env;
@@ -65,7 +58,7 @@ export async function calc() {
 
   console.log(lastHeightCrossFI)
 
-  const txs = await getUserTx(VALIDATOR_REWARD_ADDR_CROSSFI);
+  const txs = await crossfiService.getUserTx(VALIDATOR_REWARD_ADDR_CROSSFI);
 
   const txLatestHeight = txs.find((tx) =>
     tx.events && tx.events.some(event => event.type === 'withdraw_rewards')
@@ -82,12 +75,10 @@ export async function calc() {
   }
 
   let validatorDelegationsHeight = Object.fromEntries(
-    await getValidatorDelegations(VALIDATOR_ADDR_CROSSFI, txLatestHeight)
+    await crossfiService.getValidatorDelegations(VALIDATOR_ADDR_CROSSFI, txLatestHeight)
   )
 
-  const totalReward = await getRewardAddressByHeight(
-    VALIDATOR_REWARD_ADDR_CROSSFI
-  )
+  const totalReward = await crossfiService.getRewardAddressByHeight(VALIDATOR_REWARD_ADDR_CROSSFI)
 
   if (totalReward < 1) {
     return console.log('totalReward', totalReward)
@@ -146,9 +137,8 @@ export async function calc() {
       referrer._id !== ADMIN_ID
     ) {
       rewardsDelegation[referrer.addressCrossFi].rewardRef = +(
-        referralShare * REF_PERCENT_1_LVL
+        referralShare * REF_PERCENT
       ).toFixed(8)
-      // console.log(`Пользователю <i>${referrer._id}</i> с адрессом: ${referrer.addressCrossFi} начисленно ${rewardsDelegation[referrer.addressCrossFi].rewardRef} XFI за реферала по 1 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
       await sendMessage(`Пользователю <i>${referrer._id}</i> с адрессом: ${referrer.addressCrossFi} начисленно ${rewardsDelegation[referrer.addressCrossFi].rewardRef} XFI за реферала по 1 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
     }
 
@@ -157,9 +147,8 @@ export async function calc() {
       referrer2._id !== ADMIN_ID
     ) {
       rewardsDelegation[referrer.addressCrossFi].rewardRef = +(
-        referralShare * REF_PERCENT_2_LVL
+        referralShare * REF_PERCENT
       ).toFixed(8)
-      // console.log(`Пользователю <i>${referrer2._id}</i> с адрессом: ${referrer2.addressCrossFi} начисленно ${rewardsDelegation[referrer2.addressCrossFi].rewardRef} XFI за реферала по 2 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
       await sendMessage(`Пользователю <i>${referrer2._id}</i> с адрессом: ${referrer2.addressCrossFi} начисленно ${rewardsDelegation[referrer2.addressCrossFi].rewardRef} XFI за реферала по 2 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
     }
 
@@ -168,14 +157,12 @@ export async function calc() {
       referrer3._id !== ADMIN_ID
     ) {
       rewardsDelegation[referrer.addressCrossFi].rewardRef = +(
-        referralShare * REF_PERCENT_3_LVL
+        referralShare * REF_PERCENT
       ).toFixed(8)
-      // console.log(`Пользователю <i>${referrer3._id}</i> с адрессом: ${referrer3.addressCrossFi} начисленно ${rewardsDelegation[referrer3.addressCrossFi].rewardRef} XFI за реферала по 3 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
       await sendMessage(`Пользователю <i>${referrer3._id}</i> с адрессом: ${referrer3.addressCrossFi} начисленно ${rewardsDelegation[referrer3.addressCrossFi].rewardRef} XFI за реферала по 3 линии <i>${user._id}</i> с адрессом: ${user.addressCrossFi}`);
     }
 
     if (referrer._id === ADMIN_ID || referrer2._id === ADMIN_ID || referrer3._id === ADMIN_ID) {
-      // console.log(`Реферальное вознаграждение не начисляется, поскольку реферер является администратором: ${ADMIN_ID}`);
       await sendMessage(`Реферальное вознаграждение не начисляется, поскольку реферер является администратором: ${referrer._id}`)
     }
 
@@ -316,6 +303,7 @@ export async function calc() {
 
   const remainingCommission = +balance.amount / 1e18;
   console.log('remainingCommission', remainingCommission);
+  
   await sendMessage(`Возврат остатка комиссии администратору: ${remainingCommission.toFixed(8)} XFI`);
   await sendMessage(`Возврат остатка комиссии: ${remainingCommission.toFixed(8)} XFI`, +ADMIN_ID);
 }

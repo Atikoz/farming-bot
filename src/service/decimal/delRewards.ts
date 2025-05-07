@@ -1,10 +1,10 @@
 import Big from "big.js";
-import decimalService from "../function/decimal/decimalService";
-import logRefReward from "../helpers/logRefReward";
-import User from "./models/User";
-import envSchema from "./models/zodEnvSchemaSchema";
-import { sendMessage } from "./sendMessage";
-import Height from "./models/Height";
+import decimalService from "./decimalService";
+import logRefReward from "../../../helpers/logRefReward";
+import User from "../../models/User";
+import envSchema from "../../models/zodEnvSchemaSchema";
+import { sendMessage } from "../../sendMessage";
+import Height from "../../models/Height";
 import dd from 'dedent'
 
 const env = envSchema.parse(process.env);
@@ -127,7 +127,7 @@ export async function run() {
   }
 }
 
-export const calcRewards = async (totalValidatorStake: number): Promise<ICalcReward> => {
+const calcRewards = async (totalValidatorStake: number): Promise<ICalcReward> => {
   try {
     console.log('start')
     const rewardsDelegation: RewardsDelegation = {}

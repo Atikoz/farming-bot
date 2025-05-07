@@ -1,13 +1,13 @@
-import DelegateTransactions from "../../src/models/DelegateTransactions";
-import { sendMessage } from "../../src/sendMessage";
-import User from "../../src/models/User";
-import sleep from "../../helpers/sleep";
-import getUserTx from "./getUserTx";
+import DelegateTransactions from "../../models/DelegateTransactions";
+import { sendMessage } from "../../sendMessage";
+import User from "../../models/User";
+import sleep from "../../../helpers/sleep";
+import CrossFiService from "./crossfiService";
 
 const checkDelegationsUserTx = async (address: string) => {
   try {
     await sleep(5000);
-    const transactions = await getUserTx(address);
+    const transactions = await CrossFiService.getUserTx(address);
     const delegateTransactions = transactions.filter((tx) =>
       tx.events.some((event) =>
         event.type === 'delegate' &&
@@ -51,10 +51,8 @@ const checkDelegationsUserTx = async (address: string) => {
 
       if (!user) return console.log(`user ${address} not find`)
 
-      const userId = user._id;
-
-      await sendMessage(`Пользователь ${userId} с адрессом ${address} делигировал ${amount} MPX`)
-      await sendMessage(`Вы успешно делегировали ${amount} MPX`, userId)
+      await sendMessage(`Пользователь ${user._id} с адрессом ${address} делигировал ${amount} MPX`)
+      await sendMessage(`Вы успешно делегировали ${amount} MPX`, user._id)
     }
   } catch (error) {
     if (error instanceof Error) {

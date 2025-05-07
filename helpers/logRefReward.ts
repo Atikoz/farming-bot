@@ -1,5 +1,5 @@
-import decimalService from "../function/decimal/decimalService";
-import { RewardsDelegation } from "../src/delRewards";
+import decimalService from "../src/service/decimal/decimalService";
+import { RewardsDelegation } from "../src/service/decimal/delRewards";
 import User from "../src/models/User";
 import { sendMessage } from "../src/sendMessage";
 
