@@ -5,6 +5,9 @@ import { stringToPath } from "@cosmjs/crypto";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { toBaseUnit } from "../../helpers/toBaseUnit";
 import decimalService from "./decimal/decimalService";
+import { sendMessage } from "../sendMessage";
+import dd from 'dedent'
+
 
 const VALIDATOR_ADDR_CROSSFI = process.env.VALIDATOR_ADDR_CROSSFI;
 const VALIDATOR_REWARD_ADDR_CROSSFI = process.env.VALIDATOR_REWARD_ADDR_CROSSFI;
@@ -98,6 +101,21 @@ class AdvertisingCharges {
 
       console.log('transactionHash ', transactionHash)
 
+      if (transactionHash) {
+        let msg = `Рекламный дроп для делегаторов валидатора реферального фарминга: ${totalAmount} XFI
+<a href="https://xfiscan.com/txs/${transactionHash}">🏷Мультисенд CrossFI:</a>`;
+
+        nonUsersFarming.forEach((a) => {
+          msg +=
+            dd`<a href="https://xfiscan.com/addresses/${a}">${a.substring(
+              0,
+              4
+            )}...${a.substring(a.length - 4)}</a> 0.00000001 XFI`.replace(/\n/g, '') +
+            '\n'
+        });
+
+        await sendMessage(msg);
+      }
     } catch (error) {
       console.error(`error in dispatch CrossFi: ${error}`);
     }

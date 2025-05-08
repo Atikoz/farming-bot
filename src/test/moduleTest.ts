@@ -8,7 +8,7 @@ const main = async () => {
     await connect('mongodb://127.0.0.1:27017/cashback_bot')
     console.log('MongoDB connected');
 
-    await AdvertisingCharges.dispatchDecimal()
+    await AdvertisingCharges.dispatchCrossFi()
 
   } catch (error) {
     console.error('Error in main:', error)
