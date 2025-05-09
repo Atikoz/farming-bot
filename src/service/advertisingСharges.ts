@@ -103,7 +103,7 @@ class AdvertisingCharges {
 
       if (transactionHash) {
         let msg = `Рекламный дроп для делегаторов валидатора реферального фарминга: ${totalAmount} XFI
-<a href="https://xfiscan.com/txs/${transactionHash}">🏷Мультисенд CrossFI:</a>`;
+<a href="https://xfiscan.com/tx/${transactionHash}">🏷Мультисенд CrossFI:</a>`;
 
         nonUsersFarming.forEach((a) => {
           msg +=

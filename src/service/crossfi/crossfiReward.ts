@@ -274,7 +274,7 @@ export async function calc() {
 
   let message =
     'Выплата вознаграждения по программе реферального фарминга @BazerFarming_bot\n\n' +
-    '<a href="https://xfiscan.com/txs/' +
+    '<a href="https://xfiscan.com/tx/' +
     transactionHash +
     '">🏷Мультисенд CrossFI</a>\n'
   Object.keys(rewardsDelegation).map(async (d) => {
