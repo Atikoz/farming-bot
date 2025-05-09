@@ -103,22 +103,26 @@ class AdvertisingCharges {
 
       if (transactionHash) {
         const baseMsg = `Рекламный дроп для делегаторов валидатора реферального фарминга: ${totalAmount} XFI
-        <a href="https://xfiscan.com/tx/${transactionHash}">🏷Мультисенд CrossFI:</a>\n`;
+<a href="https://xfiscan.com/tx/${transactionHash}">🏷Мультисенд CrossFI:</a>\n`;
 
         const maxLength = 4096;
         let msg = baseMsg;
         let count = 0;
+        let isTruncated = false;
 
         for (const address of nonUsersFarming) {
           const line = `<a href="https://xfiscan.com/addresses/${address}">${address.slice(0, 4)}...${address.slice(-4)}</a> 0.00000001 XFI\n`;
 
-          if ((msg + line).length > maxLength) {
-            break; // зупиняємось, щоб не вийти за ліміт
+          if ((msg + line + '…').length > maxLength) {
+            isTruncated = true;
+            break;
           }
 
           msg += line;
           count++;
         }
+
+        if (isTruncated) msg += '…';
 
         await sendMessage(msg);
       }
