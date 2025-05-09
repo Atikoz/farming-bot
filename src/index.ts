@@ -24,8 +24,6 @@ const job = new CronJob(
   '5 0 * * *',
   async () => {
     console.log('111')
-    await AdvertisingCharges.dispatchCrossFi();
-
     await Promise.all([runDecimal(), runCrossFI()]);
  
     await sendMessage(decimalMessage)
@@ -36,6 +34,20 @@ const job = new CronJob(
   true,
   'Europe/Kiev'
 )
+
+const dispatchingAdd = new CronJob(
+  '0 13 * * *',
+  async () => {
+    try {
+      await AdvertisingCharges.dispatchCrossFi();
+    } catch (error) {
+      console.error('Error in daily job:', error);
+    }
+  },
+  null,
+  true,
+  'Europe/Kyiv' // встанови таймзону, якщо потрібно
+);
 
 const checkDelegationsUser = new CronJob(
   '* * * * *',
@@ -80,6 +92,7 @@ const backupDataBase = new CronJob(
 
 
 job.start();
+dispatchingAdd.start();
 backupDataBase.start();
 checkDelegationsUser.start();
 console.log(job.nextDate());
