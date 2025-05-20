@@ -23,7 +23,7 @@ export const decimalMessage = dd`
 export const crossFiMessage = dd`
 ✅Регистрируйся в боте @BazerFarming_bot
 ✅Укажи адрес кошелька , с которого будешь делегировать монеты crossFi (mpx)
-✅Делегируй в валидатор <a href="https://xfiscan.com/validators/mxvaloper128ldptndzl4eeusfa5gnlmhy8dfsl23kxsd69y">1️⃣⬆️(CASHBACK)</a> с комиссией 5%
+✅Делегируй в валидатор <a href="https://xfiscan.com/validator/mxvaloper128ldptndzl4eeusfa5gnlmhy8dfsl23kxsd69y">1️⃣⬆️(CASHBACK)</a> с комиссией 5%
 
 ВСЕМ ЗАРЕГИСТРИРОВАННЫМ В БОТЕ ДЕЛЕГАТОРАМ ВАЛИДАТОР ВЫПЛАЧИВАЕТ:
 ✅ 2.5% за участие в программе, пропорционально размеру стейка о общем стейке валидатора!
@@ -38,11 +38,11 @@ export const crossFiMessage = dd`
 export const addMessage = dd`
 ✅Регистрируйся в боте @BazerFarming_bot
 ✅Укажи адрес кошелька , с которого будешь делегировать монеты crossFi (mpx)
-✅Делегируй в валидатор 1️⃣⬆️(CASHBACK) (https://xfiscan.com/validators/mxvaloper128ldptndzl4eeusfa5gnlmhy8dfsl23kxsd69y) с комиссией 5%
+✅Делегируй в валидатор 1️⃣⬆️(CASHBACK) (https://xfiscan.com/validator/mxvaloper128ldptndzl4eeusfa5gnlmhy8dfsl23kxsd69y) с комиссией 5%
 
 ВСЕМ ЗАРЕГИСТРИРОВАННЫМ В БОТЕ ДЕЛЕГАТОРАМ ВАЛИДАТОР ВЫПЛАЧИВАЕТ:
 ✅ 2.5% за участие в программе, пропорционально размеру стейка о общем стейке валидатора!
-✅ 1.5% реферальное вознаграждение за построение реферальной структуры,  пропорционально стейкам приглашенных рефералов!
+✅ 1.5% реферальное вознаграждение за построение реферальной структуры, пропорционально стейкам приглашенных рефералов!
 
 1% комиссии валидатор оставляет себе на покрытие своих издержек!
 
